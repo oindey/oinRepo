@@ -1,0 +1,30 @@
+- name: hitting Data from MySQL
+  hosts: localhost
+  vars:
+    host: "db.vishal-chauhan.in"
+  tasks:
+    - name: Initialize a list to store alert type
+      set_fact:
+        alert_types: []
+
+    - name: Execute MySQL Query
+      community.mysql.mysql_query:
+        login_host: "{{ host }}"
+        login_user: "linroot"
+        login_password: "&rU1HRBh4W9UHkDb"
+        login_db: Ansible
+        query: select alert_name from Ansible.temp_details;
+        #query: create table config_file (alert_name varchar(255), Temp_Id int);
+          #query: INSERT INTO temp_details (ID, alert_name, Temp_Id) VALUES (1, 'CPU Alert', 45),(2, 'Service Alert', 95)
+      register: query_result
+    - name: Extract query_result using json_query
+      set_fact:
+        alert_names: "{{ query_result.query_result[0] | map(attribute='alert_name') | list }}"
+
+    - name: Display alert_names
+      debug:
+        var: alert_names
+
+    - name: print
+      debug:
+        var: query_result
