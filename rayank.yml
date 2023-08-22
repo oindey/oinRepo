@@ -1,30 +1,15 @@
 ---
-# YAML documents begin with the document separator ---
-
-# The minus in YAML this indicates a list item.  The playbook contains a list
-# of plays, with each play being a dictionary
-- name: Apache Webservers Demo
+- name: List Details of Files and Directories
   hosts: all
-  remote_user: root
-  become: yes
-  gather_facts: false
-  
-  vars:
-    - Name: Rayank
+  become: yes  # This is used to run tasks with elevated privileges
 
   tasks:
+    - name: List details of files and directories
+      find:
+        paths: /home/ubuntu
+        recurse: yes
+      register: file_details
 
-    - name: Print A Name
+    - name: Display file details
       debug:
-         msg: "Name is {{ Name }}"
-
-    - name:
-      file:
-        path: /home/ubuntu/file1
-        state: touch
-
-    # - name: Install apache Service
-    #   apt:
-    #     name: apache2
-    #     state: absent
- 
+        var: file_details.files
