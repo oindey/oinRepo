@@ -4,6 +4,14 @@
   become: yes  # This is used to run tasks with elevated privileges
 
   tasks:
+    - name: List details using ls command
+      command: ls -l /home/ubuntu
+      register: ls_output
+
+    - name: Display ls output
+      debug:
+        var: ls_output.stdout_lines
+        
     - name: List details of files and directories
       find:
         paths: /home/ubuntu
