@@ -1,0 +1,86 @@
+---
+- name: Fetch Incident and Update Incident fields data from ServiceNow
+  hosts: localhost
+  gather_facts: no
+
+  vars:
+    servicenow_instance: "https://dev141143.service-now.com"
+    servicenow_user: "admin"
+    servicenow_password: "ti!Uk/0qVHA7"
+      #alerts: "['CPU Alert', 'Service Alert']"
+    param: "?sysparm_query=short_descriptionLIKE"
+    state: "%5Estate%3D1"
+
+  tasks:
+
+    - block:
+        - name: include dbconnect playbook
+          include: dbconnect.yml
+          register: alert_names
+        - name: print var
+          debug:
+            var: alert_names
+
+        - name: Base64 encode credentials
+          set_fact:
+            encoded_credentials: "{{ (servicenow_user ~ ':' ~ servicenow_password) | b64encode }}"
+          no_log: true
+
+        - name: Add %20 to Variables
+          set_fact:
+            encoded_search_queries: "{{ encoded_search_queries | default([]) + [item | replace(' ', '%20')] }}"
+          loop: "{{ alert_names }}"
+          loop_control:
+            loop_var: item
+
+        - name: Display Encoded Search Queries
+          debug:
+            var: encoded_search_queries
+
+
+        - name: Fetch Incidents based on alert type and state
+          uri:
+            url: "{{ servicenow_instance }}/api/now/table/incident{{ param }}{{ item }}{{ state }}"
+            method: GET
+            headers:
+              Accept: "application/json"
+              Authorization: "Basic {{ encoded_credentials | string }}"
+            return_content: yes
+            force_basic_auth: yes
+          loop: "{{ encoded_search_queries }}"
+          loop_control:
+            loop_var: item
+          register: incident_data
+
+        - name: print
+          debug:
+            var: incident_data
+
+        - name: Extract incident data
+          set_fact:
+            extracted_incidents: "{{ incident_data.results | json_query('[].json.result[*]') }}"
+
+        - name: Initialize a list to store incident numbers
+          set_fact:
+            incident_numbers: []
+            short_Descriptions: []
+
+        - name: Extract incident numbers
+          set_fact:
+            incident_numbers: "{{ incident_numbers + [item.0.number] }}"
+            short_Descriptions: "{{ short_Descriptions + [item.0.short_description] }}"
+          loop: "{{ extracted_incidents }}"
+
+        - name: Display extracted incident numbers
+          debug:
+            var: incident_numbers
+
+        - name: print
+          debug:
+            var: short_Descriptions
+
+      rescue:
+        - name: Log Output For Failure
+          debug:
+            msg: "Log : FAILED : Task {{ ansible_failed_task.name }} Failed and the ERROR: {{ ansible_failed_result }}"
+          failed_when: True
