@@ -11,7 +11,7 @@
     param: "?sysparm_query=short_descriptionLIKE"
     state: "%5Estate%3D1"
     mysql_query: "SELECT alert_name FROM incidentdata.config_table;"
-    pat_token: "{{ pat_token }}"
+    #pat_token: "{{ pat_token }}"
 
   tasks:
 
@@ -30,10 +30,10 @@
           debug:
             var: alert_names
 
-        # - name: Base64 encode credentials
-        #   set_fact:
-        #     encoded_credentials: "{{ (servicenow_user ~ ':' ~ servicenow_password) | b64encode }}"
-        #   no_log: true
+         - name: Base64 encode credentials
+           set_fact:
+             encoded_credentials: "{{ (servicenow_user ~ ':' ~ servicenow_password) | b64encode }}"
+           no_log: true
 
         - name: Add %20 to Variables
           set_fact:
@@ -53,8 +53,8 @@
             method: GET
             headers:
               Accept: "application/json"
-              #Authorization: "Basic {{ encoded_credentials | string }}"
-              Authorization: "Bearer {{ pat_token }}"
+              Authorization: "Basic {{ encoded_credentials | string }}"
+              #Authorization: "Bearer {{ pat_token }}"
 
             return_content: yes
             force_basic_auth: yes
