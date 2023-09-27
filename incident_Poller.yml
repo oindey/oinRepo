@@ -7,7 +7,7 @@
     servicenow_instance: "https://dev141143.service-now.com"
     servicenow_user: "admin"
     servicenow_password: "ti!Uk/0qVHA7"
-      #alerts: "['CPU Alert', 'Service Alert']"
+    alerts: "['CPU Alert', 'Service Alert']"
     param: "?sysparm_query=short_descriptionLIKE"
     state: "%5Estate%3D1"
     mysql_query: "SELECT alert_name FROM incidentdata.config_table;"
@@ -16,19 +16,19 @@
   tasks:
 
     - block:
-        - name: Print PAT token 
-          debug:
-            var: pat_token
+        #- name: Print PAT token 
+         # debug:
+          #  var: pat_token
     
-        - name: Call the MySQL Query Playbook
-          include_tasks: mysql_query_playbook.yml
-          vars:
-            query: "{{ mysql_query }}"
-          register: alert_names
+        #- name: Call the MySQL Query Playbook
+         # include_tasks: mysql_query_playbook.yml
+          #vars:
+           # query: "{{ mysql_query }}"
+          #register: alert_names
 
-        - name: print var
-          debug:
-            var: alert_names
+        #- name: print var
+         # debug:
+          #  var: alert_names
 
          - name: Base64 encode credentials
            set_fact:
