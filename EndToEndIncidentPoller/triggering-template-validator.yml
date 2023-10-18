@@ -1,0 +1,16 @@
+- name: Launch AAP Job Template
+  awx.awx.job_launch:
+    tower_host: "{{ var_tower_hostname }}"
+    tower_username: "{{ var_tower_username }}"
+    tower_password: "{{ var_tower_password }}"
+    validate_certs: False  # Set to True if you want to validate SSL certificates
+    job_template: validator-v1.0
+    credentials:
+      - "11"
+      - "15"
+    extra_vars:
+      incident_data_validator: "{{ incident_data_validator }}"
+      # sys_id: "{{ sys_id }}"
+      pat_token: "{{ pat_token }}"
+  register: job_launch_result
+
