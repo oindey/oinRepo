@@ -1,0 +1,36 @@
+- name: write log
+  set_fact:
+    write_log_table: "{{ ansible_failed_results }}"
+    
+- name: print log
+  debug:
+    var: write_log_table
+    
+- name: Remove Single Quotes
+  set_fact:
+    clean_msg: "{{ write_log_table | replace(\"'\", '') }}"
+
+- name: Display Cleaned Message
+  debug:
+    var: clean_msg
+
+
+- name: Display Current Date and Time
+  set_fact:
+    dateTime: "{{ ansible_date_time.date }}_{{ ansible_date_time.time }}"
+    
+- name: print date time
+  debug:
+    var: dateTime
+
+- name: write log in db
+  include_tasks: mysql_query_playbook.yml
+  vars:
+    query: "INSERT INTO `incidentdata`.`logTable` (`Date`, `ErrorMessage`) VALUES ('{{ dateTime }}', '{{ clean_msg }}');"
+              #query: "INSERT INTO incidentdata.logTable (Date, ErrorMessage) VALUES (``,`{{ write_log_table.msg }}`);"
+  #failed_when: True
+  register: res
+
+- name: print res
+  debug:
+    var: res
