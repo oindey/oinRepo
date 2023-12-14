@@ -1,0 +1,18 @@
+---
+- name: Send Email using Outlook
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+    - name: Send Email
+      community.general.outlook_sendmail:
+        profile: "Outlook"
+        subject: "Test Email from Ansible"
+        body: "This is a test email sent from Ansible playbook."
+        to_recipients:
+          - "oindrila.dey@capgemini.com"
+        cc_recipients:
+          - "oindrila.dey@capgemini.com"
+       # attachment_paths:
+       #   - "/path/to/attachment.txt"
+      delegate_to: localhost
